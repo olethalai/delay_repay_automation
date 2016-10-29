@@ -13,7 +13,6 @@ user_fields = [
   :house_number,
   :road,
   :town,
-  :county,
   :postcode,
   :photocard_id
 ]
@@ -53,6 +52,7 @@ def load_config(filename, fields)
 
   # Confirm that all required fields are filled in
   fields.each do |field|
+    puts "Reading #{field}..."
     assert_not_nil(file[field.to_s])
   end
 
@@ -77,41 +77,31 @@ end
 user = load_config('user_config.yml', user_fields)
 ticket = load_config('ticket_config.yml', ticket_fields)
 
-# Split up pounds and pence in the ticket cost
-ticket['pounds'] = ticket['cost'].floor
-ticket['pence'] = (ticket['cost'] * 100 % 100)
-
 # Open the delay repay form
 browser = Selenium::WebDriver.for(:firefox)
 browser.navigate.to('http://www.thameslinkrailway.com/contact-us/delay-repay/claim-form/')
 
-# Fill in the form
-dropdown_select(browser.find_element(:id, 'nametitle'), user['title'])
-textbox_type(browser.find_element(:id, 'firstname'), user['first_name'])
+# User details
+dropdown_select(browser.find_element(:id, 'title'), user['title'])
+textbox_type(browser.find_element(:id, 'firstName'), user['first_name'])
 textbox_type(browser.find_element(:id, 'surname'), user['last_name'])
-textbox_type(browser.find_element(:id, 'label'), user['email'])
-textbox_type(browser.find_element(:id, 'label2'), user['email'])
-textbox_type(browser.find_element(:id, 'label3'), user['phone'])
-textbox_type(browser.find_element(:id, 'address1'), "#{user['house_number']} #{user['road']}")
-textbox_type(browser.find_element(:id, 'city'), user['town'])
-textbox_type(browser.find_element(:id, 'county'), user['county'])
+textbox_type(browser.find_element(:id, 'email'), user['email'])
+textbox_type(browser.find_element(:id, 'confirmEmail'), user['email'])
+textbox_type(browser.find_element(:id, 'contactPhoneNumber'), user['phone'])
+textbox_type(browser.find_element(:id, 'addressline1'), "#{user['house_number']} #{user['road']}")
+textbox_type(browser.find_element(:id, 'towncity'), user['town'])
 textbox_type(browser.find_element(:id, 'postcode'), user['postcode'])
+# Wait for form validation to kick in
+sleep(1)
+browser.find_element(:css, 'button.pull-right.text-sm.btn.btn-primary').click
 
-# Do these two now, and then the user will be back where they need to fill in journey times
-file_upload(browser.find_element(:id, 'uploadedfile_1'), File.absolute_path(ticket['path_to_ticket_image']))
-browser.find_element(:name, 'confirmation').click
+# Claim details
+textbox_type(browser.find_element(:xpath, "//select[@placeholder='Type of ticket']"), ticket['type'])
+textbox_type(browser.find_element(:xpath, "//input[@placeholder='Cost of ticket']"), "#{'%.02f' % ticket['cost']}")
+textbox_type(browser.find_element(:xpath, "//input[@placeholder='5-digit number']"), ticket['light_blue_number'])
+textbox_type(browser.find_element(:xpath, "//input[@placeholder='Ticket number']"), ticket['dark_blue_number'])
+textbox_type(browser.find_element(:xpath, "//input[@placeholder='Photocard number']"), user['photocard_id'])
+browser.execute_script(%q(document.querySelector("div.col-sm-6 input[type=file]").style.display='block'))
+file_upload(browser.find_element(:xpath, "//input[@type='file']"), File.absolute_path(ticket['path_to_ticket_image']))
 
-dropdown_select(browser.find_element(:id, 'ticket_type_1'), ticket['type'])
-textbox_type(browser.find_element(:id, 'ticket_num_1'), ticket['light_blue_number'])
-textbox_type(browser.find_element(:id, 'ticket_num2_1'), ticket['dark_blue_number'])
-textbox_type(browser.find_element(:id, 'photocard_id_1'), user['photocard_id'])
-textbox_type(browser.find_element(:id, 'cost_pounds_1'), ticket['pounds'])
-textbox_type(browser.find_element(:id, 'cost_pence_1'), ticket['pence'].to_s[0, 2])
-
-# Fill in today's date
-today = Date.today
-dropdown_select(browser.find_element(:id, 'journey_date_day_1'), today.day.to_s)
-dropdown_select(browser.find_element(:id, 'journey_date_month_1'), Date::MONTHNAMES[today.month])
-dropdown_select(browser.find_element(:id, 'journey_date_year_1'), today.year.to_s)
-
-puts "Now fill in your journey details and the Captcha at the bottom of the page!"
+puts "Now fill in your journey details and proceed to the next page to select your compensation method."

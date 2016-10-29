@@ -16,3 +16,10 @@ xcuserdata
 # svn & cvs
 .svn
 CVS
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.PNG
+*.yml
