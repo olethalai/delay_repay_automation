@@ -46,6 +46,6 @@ Run `ruby thameslink.rb` again. Another text file will open. Fill it out with in
 
 Run `ruby thameslink.rb` a third time. This time it should open Firefox and whizz through the form.
 
-All you have to do now is check the date (it'll be today's date by default) and enter the details of your delayed journey. Then, scroll down to the Captcha, verify that you're not a robot and wait for your National Rail voucher. :)
+All you have to do now is check the date (it'll be today's date by default) and enter the details of your delayed journey. Then proceed to the next page, where you can select how you want to be compensated if your claim is approved. Scroll down and complete the Captcha to verify you're not a robot, and then wait about a month for your claim to be assessed.
 
 If/when it doesn't work for you, and you're on a Mac, and you're a season ticket holder, please leave a comment to let me know something went wrong.
