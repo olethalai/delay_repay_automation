@@ -80,6 +80,7 @@ ticket = load_config('ticket_config.yml', ticket_fields)
 # Open the delay repay form
 browser = Selenium::WebDriver.for(:firefox)
 browser.navigate.to('http://www.thameslinkrailway.com/contact-us/delay-repay/claim-form/')
+sleep(1)
 
 # User details
 dropdown_select(browser.find_element(:id, 'title'), user['title'])
@@ -94,6 +95,7 @@ textbox_type(browser.find_element(:id, 'postcode'), user['postcode'])
 # Wait for form validation to kick in
 sleep(1)
 browser.find_element(:css, 'button.pull-right.text-sm.btn.btn-primary').click
+sleep(1)
 
 # Claim details
 textbox_type(browser.find_element(:xpath, "//select[@placeholder='Type of ticket']"), ticket['type'])
